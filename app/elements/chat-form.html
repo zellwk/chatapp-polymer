@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+<dom-module id="chat-form">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      form {
+        position: fixed;
+        left: 256px;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        align-items: flex-start;
+        border-top: 1px solid #ddd;
+        padding: 0.5em 1em;
+      }
+
+      paper-textarea,
+      paper-input {
+        /*flex: 1 0 75%;*/
+        flex-grow: 1;
+      }
+
+      paper-button {
+        position: relative;
+        top: 0.5em;
+      }
+    </style>
+
+    <form action="#" on-submit="submitForm">
+      <paper-input label="Your Message"></paper-input>
+      <paper-button raised on-tap="submitForm">submit</paper-button>
+    </form>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'chat-form',
+
+    submitForm: function(e, detail) {
+      e.preventDefault();
+      var input = this.querySelector('paper-input')
+      this.fire('submit-message', input.value);
+      input.value = '';
+    }
+  })
+</script>

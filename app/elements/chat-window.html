@@ -1,0 +1,143 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="chat-form.html">
+
+
+<dom-module id="chat-window">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+    :host {
+      display: block;
+      padding: 1em;
+    }
+
+    :host paper-material {
+      display: inline-block;
+      padding: 0.5em 0.75em;
+      border-radius: 4px;
+    }
+
+    :host .messages {
+      position: fixed;
+      top: 0;
+      left: 256px;
+      right: 0;
+      bottom: 90px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      padding: 0 1em;
+    }
+
+    :host .sender {
+      font-size: 0.75em;
+      margin-bottom: 0.5em;
+      color: #999;
+    }
+
+    :host .message {
+      margin-bottom: 1em;
+    }
+
+    :host .is-me {
+      text-align: right;
+    }
+
+    :host .is-me paper-material {
+      background: var(--paper-light-green-100);
+    }
+    </style>
+      <div class="messages">
+        <template is="dom-repeat" items='{{items}}'>
+          <div class$='message {{ checkIfMe(item) }}'>
+            <div class="sender">{{item.username}}</div>
+            <paper-material elevation="1"> {{item.message}} </paper-material>
+          </div>
+        </template>
+      </div>
+      <chat-form on-submit-message="submitMessage"></chat-form>
+  </template>
+</dom-module>
+<script>
+Polymer({
+  is: 'chat-window',
+  properties: {
+    items: {
+      type: Array,
+      notify: true,
+    }
+  },
+  ready: function() {
+    var self = this;
+
+    document.addEventListener('socket connected', function() {
+      app.socket.on('connected', function(message) {
+        console.log(message);
+      })
+
+      app.socket.on('chat log', function(data) {
+        console.log('logging chats');
+        this.setMessageHandler(data)
+      }.bind(self))
+
+      app.socket.on('chat message', function(data) {
+        this.addMessageHandler(data)
+      }.bind(self))
+
+      var observer = new MutationObserver(function(mutations) {
+        this.scrollToEnd();
+        // mutations.forEach(function (mutation) {
+        //   var entry = {
+        //     mutation: mutation,
+        //     el: mutation.target,
+        //     value: mutation.target.textContent,
+        //     oldValue: mutation.oldValue,
+        //     addedNodes: mutation.addedNodes,
+        //     removedNodes: mutation.removedNodes,
+        //   };
+        // })
+      }.bind(self))
+
+      observer.observe(this.querySelector('.messages'), {
+        childList: true,
+        subtree: true
+      })
+    })
+  },
+
+  checkIfMe: function(item) {
+    return item.username === app.username ? 'is-me' : '';
+  },
+
+  setMessageHandler: function(data) {
+    this.items = data;
+  },
+
+  addMessageHandler: function(m) {
+    this.push('items', m);
+  },
+
+  scrollToEnd: function () {
+    var messages = this.querySelector('.messages');
+    messages.scrollTop = messages.scrollHeight;
+  },
+
+  submitMessage: function(e, message) {
+    var timestamp = new Date()
+    var m = {
+      username: app.username,
+      message: message,
+      timestamp: timestamp.toISOString()
+    }
+
+    this.addMessageHandler(m);
+
+    app.socket.emit('chat message', {
+      username: app.username,
+      message: message,
+      timestamp: timestamp.toISOString()
+    })
+  },
+
+})
+</script>
