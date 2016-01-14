@@ -63,70 +63,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
     <chat-room id="chat" chatroom="[[route]]"></chat-room>
-    <!-- <paper-drawer-panel id="paperDrawerPanel">
-      <paper-scroll-header-panel drawer fixed>
-
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Chats</span>
-        </paper-toolbar>
-
-        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="home" href="{{baseUrl}}">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
-
-          <a data-route="users" href="{{baseUrl}}users">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
-        </paper-menu>
-      </paper-scroll-header-panel>
-
-      <paper-scroll-header-panel main id="headerPanelMain">
-
-        <paper-toolbar id="mainToolbar">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
-            <div class="title">Title</div>
-            <div id="login" class="btn">LOG IN</div>
-        </paper-toolbar>
-
-        <div class="content">
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
-            <section data-route="home">
-              <chat-window></chat-window>
-            </section>
-
-            <section data-route="users">
-              <paper-material elevation="1">
-                <paper-input></paper-input>
-                <h2 class="page-title">Users</h2>
-                <p>This is the users section</p>
-                <a href$="{{baseUrl}}users/Addy">Addy</a><br>
-                <a href$="{{baseUrl}}users/Rob">Rob</a><br>
-                <a href$="{{baseUrl}}users/Chuck">Chuck</a><br>
-                <a href$="{{baseUrl}}users/Sam">Sam</a>
-              </paper-material>
-      <paper-button raised>submit</paper-button>
-
-            </section>
-
-            <section data-route="user-info">
-              <paper-material elevation="1">
-                <h2 class="page-title">User: {{params.name}}</h2>
-                <div>This is {{params.name}}'s section</div>
-              </paper-material>
-            </section>
-          </iron-pages>
-        </div>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel> -->
   </template>
 
   <!-- build:js scripts/app.js -->
   <script src="http://cdn.auth0.com/js/lock-8.1.3.min.js"></script>
   <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
-
   <script>
     var app = document.querySelector('#app');
 
@@ -180,8 +121,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     function startChat() {
-      // var url = 'https://ga-webchat.herokuapp.com/'
-      var url = 'localhost:3000'
+      var url = 'https://ga-webchat.herokuapp.com/'
+      // var url = 'localhost:3000'
       app.socket = io.connect(url, {
         'query': 'token=' + window.localStorage.getItem('userToken')
       })
