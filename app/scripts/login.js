@@ -55,7 +55,7 @@
       app.socket = io.connect(url, {
         'query': 'token=' + window.localStorage.getItem('userToken')
       })
-      app.username = JSON.parse(window.localStorage.getItem('profile')).name
+      app.username = JSON.parse(window.localStorage.getItem('profile')).nickname
 
       app.socket.on('connect', function(){
         app.fire('socket connected');

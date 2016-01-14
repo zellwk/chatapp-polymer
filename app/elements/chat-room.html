@@ -41,6 +41,14 @@
       padding: 0 16px;
     }
 
+    paper-menu a:hover .x {
+      display: block;
+    }
+
+    .menu-item {
+      position: relative;
+    }
+
     #login {
       position: fixed;
       right: 1em;
@@ -57,6 +65,23 @@
       right: 0;
       padding: 1em;
     }
+
+    .x {
+      /*display: none;*/
+      position: absolute;
+      z-index: 200;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      border: 0;
+      min-width: 3em;
+      height: auto;
+    }
+
+    .x:hover .x {
+      display: inline-block;
+    }
     </style>
 
     <paper-drawer-panel>
@@ -68,7 +93,10 @@
 
         <paper-menu id="roomsList" class="list" attr-for-selected="data-route" selected="[[route]]">
           <template is="dom-repeat" items="{{rooms}}">
-            <a data-route$="{{item}}" href$="{{ setHref(item) }}">{{item}}</a>
+            <div class="menu-item" data-route$="{{item}}" >
+              <a href$="{{ setHref(item) }}">{{item}}</a>
+              <paper-button class="x" on-tap="leaveRoom">X</paper-button>
+            </div>
           </template>
         </paper-menu>
 
@@ -102,13 +130,28 @@
       },
       rooms: {
         type: function() {return []},
-        value: ['home', 'blah', 'myroom'],
+        value: ['home', 'WDI', 'myroom'],
       }
     },
 
     ready: function() {
       document.addEventListener('socket connected', function() {
         this.socket = app.socket
+        this.socketListeners()
+      }.bind(this))
+    },
+
+    socketListeners: function() {
+      this.socket.emit('get user', app.username)
+
+      this.socket.on('get user', function(err, data) {
+        if (err && err.message === 'No such user') {
+          this.socket.emit('create user', {
+            username: app.username,
+            rooms: ['WDI', 'myroom']
+          })
+        }
+        this.createChatrooms(data);
       }.bind(this))
     },
 
@@ -124,6 +167,14 @@
       return room === 'home' ? 'home' : 'chat/' + room
     },
 
+    createChatrooms: function(data) {
+      data.rooms.forEach(function(room){
+        if (this.rooms.indexOf(room) === -1) {
+          this.push('rooms', room)
+        }
+      }.bind(this));
+    },
+
     joinRoom: function(e, detail) {
       e.preventDefault();
       var roomElem = this.querySelector('#room')
@@ -137,5 +188,16 @@
       })
       page.redirect('/chat/' + room)
     },
+
+    leaveRoom: function(e) {
+      var room = e.target.parentNode.getAttribute('data-route');
+      var index = this.rooms.indexOf(room);
+      this.splice('rooms', index, 1)
+      this.socket.emit('leave room', {
+        user: app.username,
+        room: room
+      })
+      page.redirect('/');
+    }
   })
 </script>
