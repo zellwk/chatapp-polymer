@@ -33,11 +33,15 @@
     "web-component-tester": "^3.4.0"
   },
   "scripts": {
+    "start": "node server.js",
     "test": "gulp test:local",
-    "start": "gulp serve",
-    "lint": "gulp lint"
+    "lint": "gulp lint",
+    "postinstall": "bower install && gulp"
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
   }
 }

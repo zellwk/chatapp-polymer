@@ -2,7 +2,6 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="chat-form.html">
 
-
 <dom-module id="chat-window">
   <template>
     <style include="shared-styles"></style>
@@ -81,59 +80,62 @@
       <chat-form on-submit-message="submitMessage"></chat-form>
   </template>
 </dom-module>
+
 <script>
 Polymer({
   is: 'chat-window',
   properties: {
-    items: {
-      type: Array,
-      notify: true,
-      // observer: 'scrollToEnd'
-    },
     chatroom: {
       type: String,
       notify: true,
       observer: 'modifyChatroomName'
     },
+    socket: {
+      type: function() {return {}},
+      observer: 'socketListeners'
+    }
   },
+
   ready: function() {
-    var self = this;
     this.items = [];
+  },
 
-    document.addEventListener('socket connected', function() {
-      app.socket.on('connected', function(message) {
-        console.log(message);
-      })
+  socketListeners: function() {
+    this.socket.on('connected', function(message) {
+      console.log(message);
+    })
 
-      app.socket.on('chat log', function(data) {
+    if (this.chatroom === 'home') {
+      this.socket.on('chat log', function(data) {
         console.log('logging chats');
-        this.setMessageHandler(data)
-      }.bind(self))
+        this.loadMessageHandler(data)
+      }.bind(this))
+    }
 
-      app.socket.on('chat message', function(data) {
-        this.addMessageHandler(data)
-      }.bind(self))
+    this.socket.on('chat message', function(data) {
+      this.addMessageHandler(data)
+    }.bind(this))
 
-      var observer = new MutationObserver(function(mutations) {
+    // joins room and retrieves room log immediately
+    if (this.chatroom !== 'home') {
+      this.socket.emit('join room', {
+        user: app.username,
+        room: this.chatroom
+      });
+
+      this.socket.on('room log', function(data) {
+        this.loadMessageHandler(data)
+      }.bind(this))
+    }
+
+    var observer = new MutationObserver(function(mutations) {
         this.scrollToEnd();
-        // mutations.forEach(function (mutation) {
-        //   var entry = {
-        //     mutation: mutation,
-        //     el: mutation.target,
-        //     value: mutation.target.textContent,
-        //     oldValue: mutation.oldValue,
-        //     addedNodes: mutation.addedNodes,
-        //     removedNodes: mutation.removedNodes,
-        //   };
-        //   console.log(entry);
-        // })
-      }.bind(self))
+      }.bind(this))
 
       observer.observe(this.querySelector('.messages'), {
         childList: true,
         subtree: true
       })
-    })
   },
 
   checkIfMe: function(item) {
@@ -145,8 +147,12 @@ Polymer({
     this.chatroomName = str.charAt(0).toUpperCase() + str.slice(1);
   },
 
-  setMessageHandler: function(data) {
-    this.items = data;
+  loadMessageHandler: function(data) {
+    if (data.room) {
+      if (data.room === this.chatroom) this.items = data.messages;
+    } else {
+      this.items = data;
+    }
   },
 
   addMessageHandler: function(m) {
@@ -166,14 +172,25 @@ Polymer({
       timestamp: timestamp.toISOString()
     }
 
-    // this.addMessageHandler(m);
+    // Submits either to 'home' or a specific room
+    if (this.chatroom === 'home') {
+      app.socket.emit('chat message', {
+        username: app.username,
+        message: message,
+        timestamp: timestamp.toISOString()
+      })
+    }
 
-    app.socket.emit('chat message', {
-      username: app.username,
-      message: message,
-      timestamp: timestamp.toISOString()
-    })
+    else {
+      this.socket.emit('message room', {
+        sender: app.username,
+        message: message,
+        time: timestamp.toISOString(),
+        room: this.chatroom
+      })
+      this.addMessageHandler(m);
+    }
   },
-
 })
+
 </script>

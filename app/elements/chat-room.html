@@ -71,14 +71,20 @@
       </paper-header-panel>
       <div main>
         <iron-pages attr-for-selected="data-route" selected="[[chatroom]]">
+          <!-- <template is="dom-repeat" items="{{chatrooms}}" as="room">
+            <section data-route="{{room}}">
+              <p>{{room}}</p>
+              <chat-window class$="{{item}}" socket="{{setSocket()}}" chatroom="{{setItem(item)}}">
+            </section>
+          </template> -->
           <section data-route="home">
-            <chat-window chatroom="[[chatroom]]"></chat-window>
+            <chat-window socket="{{socket}}" chatroom="home"></chat-window>
           </section>
           <section data-route="chat">
-            <chat-window chatroom="[[chatroom]]"></chat-window>
+            <chat-window socket="{{socket}}" chatroom="chat"></chat-window>
           </section>
           <section data-route="myroom">
-            <chat-window chatroom="[[chatroom]]"></chat-window>
+            <chat-window socket="{{socket}}" chatroom="myroom"></chat-window>
           </section>
         </iron-pages>
       </div>
@@ -95,6 +101,14 @@
         type: String,
         notify: true
       }
+    },
+
+    ready: function() {
+      this.chatrooms = ['home', 'chat', 'myroom'];
+
+      document.addEventListener('socket connected', function() {
+        this.socket = app.socket
+      }.bind(this))
     },
   })
 </script>

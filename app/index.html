@@ -186,6 +186,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'query': 'token=' + window.localStorage.getItem('userToken')
       })
       app.username = JSON.parse(window.localStorage.getItem('profile')).name
+
       app.socket.on('connect', function(){
         app.fire('socket connected');
       });
