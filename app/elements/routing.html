@@ -15,22 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       page.base(app.baseUrl.replace(/\/$/, ''));
     }
 
-    // Middleware
-    // function scrollToTop(ctx, next) {
-    //   app.scrollPageToTop();
-    //   next();
-    // }
-
-    // function closeDrawer(ctx, next) {
-    //   app.closeDrawer();
-    //   next();
-    // }
-
-    // Routes
-    // page('*', scrollToTop, closeDrawer, function(ctx, next) {
-    //   next();
-    // });
-
     page('/', function() {
       app.route = 'home';
     });
@@ -39,29 +23,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'home';
     });
 
-    page('/chatrooms/:chatroom', function(data) {
+    page('/chat/:chatroom', function(data) {
+      app.route = 'chat/' + data.params.chatroom;
+      app.params = data.params
     })
-
-    page('/chat', function(data) {
-      app.route = 'chat';
-    })
-
-    page('/myroom', function(data) {
-      app.route = 'myroom';
-    })
-
-    page('/users', function() {
-      app.route = 'users';
-    });
-
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
-    });
-
-    page('/contact', function() {
-      app.route = 'contact';
-    });
 
     // 404
     page('*', function() {
