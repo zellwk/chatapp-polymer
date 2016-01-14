@@ -62,8 +62,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved class="fullbleed layout vertical">
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
-    <!-- <chat-room id="chat"></chat-room> -->
-    <paper-drawer-panel id="paperDrawerPanel">
+    <chat-room id="chat" chatroom="[[route]]"></chat-room>
+    <!-- <paper-drawer-panel id="paperDrawerPanel">
       <paper-scroll-header-panel drawer fixed>
 
         <paper-toolbar id="drawerToolbar">
@@ -71,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
 
         <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="test" href="{{baseUrl}}">
+          <a data-route="home" href="{{baseUrl}}">
             <iron-icon icon="home"></iron-icon>
             <span>Home</span>
           </a>
@@ -120,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </iron-pages>
         </div>
       </paper-scroll-header-panel>
-    </paper-drawer-panel>
+    </paper-drawer-panel> -->
   </template>
 
   <!-- build:js scripts/app.js -->
@@ -180,7 +180,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     function startChat() {
-      var url = 'http://ga-webchat.herokuapp.com/'
+      // var url = 'https://ga-webchat.herokuapp.com/'
+      var url = 'localhost:3000'
       app.socket = io.connect(url, {
         'query': 'token=' + window.localStorage.getItem('userToken')
       })
