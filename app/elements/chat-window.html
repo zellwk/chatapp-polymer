@@ -128,6 +128,10 @@ Polymer({
       this.socket.on('room log', function(data) {
         this.loadMessageHandler(data)
       }.bind(this))
+
+      this.socket.on('message room', function(err, data) {
+        this.addMessageHandler(data)
+      }.bind(this))
     }
 
     var observer = new MutationObserver(function(mutations) {
