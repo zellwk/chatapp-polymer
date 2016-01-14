@@ -36,7 +36,7 @@
     "start": "node server.js",
     "test": "gulp test:local",
     "lint": "gulp lint",
-    "postinstall": "bower install"
+    "postinstall": "bower install && gulp"
   },
   "engines": {
     "node": ">=0.10.0"
