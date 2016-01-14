@@ -57,7 +57,7 @@
         <paper-toolbar class="drawerToolbar">
           <span class="paper-font-title">Chats</span>
         </paper-toolbar>
-        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
+        <paper-menu id="roomsList" class="list" attr-for-selected="data-route" selected="[[route]]">
           <a data-route="home" href="/">
             <span>Home</span>
           </a>
@@ -68,24 +68,19 @@
             <span>myroom</span>
           </a>
         </paper-menu>
+        <form on-submit="joinRoom">
+          <paper-input id="room" label="Enter room to join"></paper-input>
+          <paper-button raised on-tap="joinRoom">Join Room</paper-button>
+        </form>
       </paper-header-panel>
+
       <div main>
         <iron-pages attr-for-selected="data-route" selected="[[chatroom]]">
-          <!-- <template is="dom-repeat" items="{{chatrooms}}" as="room">
-            <section data-route="{{room}}">
-              <p>{{room}}</p>
-              <chat-window class$="{{item}}" socket="{{setSocket()}}" chatroom="{{setItem(item)}}">
+          <template id="repeat" is="dom-repeat" items='{{rooms}}'>
+            <section data-route$='{{item}}'>
+              <chat-window class$="{{item}}" chatroom="{{item}}" socket='{{socket}}'>{{item}}</chat-window>
             </section>
-          </template> -->
-          <section data-route="home">
-            <chat-window socket="{{socket}}" chatroom="home"></chat-window>
-          </section>
-          <section data-route="chat">
-            <chat-window socket="{{socket}}" chatroom="chat"></chat-window>
-          </section>
-          <section data-route="myroom">
-            <chat-window socket="{{socket}}" chatroom="myroom"></chat-window>
-          </section>
+          </template>
         </iron-pages>
       </div>
     </paper-drawer-panel>
@@ -100,15 +95,52 @@
       chatroom: {
         type: String,
         notify: true
+      },
+      rooms: {
+        type: function() {return []},
+        value: ['home', 'chat', 'myroom'],
+        observer: 'roomObserver'
       }
     },
 
     ready: function() {
-      this.chatrooms = ['home', 'chat', 'myroom'];
-
       document.addEventListener('socket connected', function() {
         this.socket = app.socket
+        this.socketListener();
       }.bind(this))
+
+      var obs = new MutationObserver(function(mutations) {
+        console.log(mutations);
+      })
+
+      obs.observe(this.querySelector('#roomsList'), {
+        subtree: true,
+        childList: true
+      })
     },
+
+    socketListener: function() {
+      this.socket.on('join room', function(data, blah) {
+        console.log(data, blah);
+      })
+    },
+
+    joinRoom: function(e, detail) {
+      e.preventDefault();
+      var room = this.querySelector('#room')
+      this.socket.emit('join room', {
+        user: app.username,
+        room: room.value
+      })
+      // var updatedRooms = this.rooms.slice();
+      // updatedRooms.push(room.value);
+      // this.set('rooms', updatedRooms)
+      this.push('rooms', room.value)
+      room.value = ''
+    },
+
+    roomObserver: function() {
+      // this.$.repeat.render();
+    }
   })
 </script>

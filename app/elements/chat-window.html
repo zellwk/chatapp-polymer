@@ -85,9 +85,12 @@
 Polymer({
   is: 'chat-window',
   properties: {
+    items: {
+      type: function() {return []},
+      value: []
+    },
     chatroom: {
       type: String,
-      notify: true,
       observer: 'modifyChatroomName'
     },
     socket: {
@@ -97,7 +100,6 @@ Polymer({
   },
 
   ready: function() {
-    this.items = [];
   },
 
   socketListeners: function() {
@@ -105,18 +107,18 @@ Polymer({
       console.log(message);
     })
 
+    // Only for global
     if (this.chatroom === 'home') {
       this.socket.on('chat log', function(data) {
-        console.log('logging chats');
         this.loadMessageHandler(data)
+      }.bind(this))
+
+      this.socket.on('chat message', function(data) {
+        this.addMessageHandler(data)
       }.bind(this))
     }
 
-    this.socket.on('chat message', function(data) {
-      this.addMessageHandler(data)
-    }.bind(this))
-
-    // joins room and retrieves room log immediately
+    // Only for rooms
     if (this.chatroom !== 'home') {
       this.socket.emit('join room', {
         user: app.username,
@@ -165,6 +167,7 @@ Polymer({
   },
 
   submitMessage: function(e, message) {
+    // e.stopPropagation()
     var timestamp = new Date()
     var m = {
       username: app.username,
@@ -183,7 +186,7 @@ Polymer({
 
     else {
       this.socket.emit('message room', {
-        sender: app.username,
+        username: app.username,
         message: message,
         time: timestamp.toISOString(),
         room: this.chatroom
