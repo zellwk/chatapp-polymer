@@ -146,10 +146,11 @@
 
       this.socket.on('get user', function(err, data) {
         if (err && err.message === 'No such user') {
-          this.socket.emit('create user', {
+          data = {
             username: app.username,
             rooms: ['WDI', 'myroom']
-          })
+          }
+          this.socket.emit('create user', data)
         }
         this.createChatrooms(data);
       }.bind(this))
